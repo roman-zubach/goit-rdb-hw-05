@@ -1,0 +1,82 @@
+﻿1.  SELECT
+        *,
+        (
+                SELECT
+                        customer_id
+                FROM
+                        orders
+                WHERE
+                        orders.id = order_details.order_id
+        ) AS customer_id
+FROM
+        order_details;
+
+
+2. SELECT
+        *
+FROM
+        order_details
+WHERE
+        order_id IN (
+                SELECT
+                        id FROM orders
+                WHERE
+                        shipper_id = 3
+        );
+
+
+3. SELECT
+        order_id,
+        ROUND(AVG(quantity), 1) AS avgQuantity
+FROM (
+        SELECT
+                order_id,
+                quantity
+        FROM
+                order_details
+        WHERE
+                quantity > 10
+        ) AS result
+GROUP BY
+        order_id;
+
+
+4. WITH temp AS (
+        SELECT
+                order_id,
+                quantity
+        FROM
+                order_details
+        WHERE
+                quantity > 10
+)
+SELECT
+        order_id, ROUND(AVG(quantity), 1) AS avgQuantity
+FROM
+        temp
+GROUP BY
+        order_id;
+
+5. DELIMITER //
+
+
+DROP FUNCTION IF EXISTS divide_floats//
+
+
+CREATE FUNCTION divide_floats(a FLOAT, b FLOAT) RETURNS FLOAT
+DETERMINISTIC
+NO SQL
+BEGIN
+    RETURN a / b;
+END//
+
+
+DELIMITER ;
+
+
+
+
+SELECT
+        order_id, divide_floats(quantity, 2.0) AS half_quantity
+FROM
+        order_details;
